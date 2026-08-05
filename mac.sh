@@ -6,6 +6,16 @@
 
 set -e
 
+# When this script is run as `curl ... | bash`, stdin is the pipe rather than
+# the keyboard. Homebrew then cannot prompt for a password and aborts with
+# "Running in non-interactive mode because `stdin` is not a TTY" followed by
+# "Need sudo access on macOS". Reattaching stdin to the terminal fixes it and
+# keeps the simple one-line install command working.
+# Found live on the first real install, Aug 5 2026.
+if [ ! -t 0 ] && [ -e /dev/tty ]; then
+  exec < /dev/tty
+fi
+
 GREEN='\033[0;32m'; YELLOW='\033[1;33m'; RED='\033[0;31m'; BOLD='\033[1m'; NC='\033[0m'
 pass()  { echo -e "  ${GREEN}✓${NC} $1"; }
 doing() { echo -e "  ${YELLOW}→${NC} $1"; }
