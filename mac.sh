@@ -137,6 +137,10 @@ echo -e "  ${YELLOW}Almost done. Claude needs to connect to your Claude account.
 echo -e "  ${YELLOW}Your browser will open — sign in with your Claude.ai account, then come back.${NC}"
 echo ""
 echo -e "  Press Enter to open your browser..."
+# Drop any keystrokes buffered while the install was running. Without this a
+# stray Enter pressed minutes ago satisfies the prompt below instantly, the
+# browser never opens, and the man lands on "Setup Complete" thinking it failed.
+read -r -t 0.1 -n 10000 -s _flush 2>/dev/null || true
 read -r
 cd "$WORKSPACE"; claude --version &>/dev/null || true
 
