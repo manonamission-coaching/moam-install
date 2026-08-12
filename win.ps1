@@ -19,7 +19,7 @@ Write-Host "  The MOAM Powerhouse - Windows Installer" -ForegroundColor White
 Write-Host "==============================================" -ForegroundColor White
 Write-Host ""
 Write-Host "This sets up your AI agent in about 5-15 minutes."
-Write-Host "Your browser will open twice (Claude + GitHub logins)."
+Write-Host "Your browser will open so you can sign in to GitHub."
 Write-Host ""
 
 # --- Step 1: winget / GitHub CLI ---
