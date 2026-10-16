@@ -102,7 +102,7 @@ cd "$WORKSPACE"
 mkdir -p .claude/skills
 for d in my-skills/*/; do
   name=$(basename "$d")
-  ln -sf "../../my-skills/$name" ".claude/skills/$name"
+  ln -sfn "../../my-skills/$name" ".claude/skills/$name"
 done
 pass "Skills wired"
 

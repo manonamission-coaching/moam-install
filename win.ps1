@@ -71,6 +71,8 @@ Set-Location $Workspace
 New-Item -ItemType Directory -Force -Path ".claude\skills" | Out-Null
 Get-ChildItem "my-skills" -Directory | ForEach-Object {
   $link = ".claude\skills\$($_.Name)"
+  # git checks the repo's links out as small text files on Windows; replace them
+  if ((Test-Path $link) -and -not ((Get-Item $link -Force).Attributes -band [IO.FileAttributes]::ReparsePoint)) { Remove-Item $link -Force }
   if (-not (Test-Path $link)) { New-Item -ItemType Junction -Path $link -Target $_.FullName | Out-Null }
 }
 Pass "Skills wired"
