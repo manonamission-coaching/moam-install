@@ -82,6 +82,9 @@ fi
 step 4 "Downloading your MOAM Powerhouse"
 if [[ -d "$WORKSPACE" && -f "$WORKSPACE/CLAUDE.md" ]]; then
   pass "Workspace already exists at ~/Documents/$FOLDER"
+  doing "Checking for updates..."
+  if git -C "$WORKSPACE" pull --ff-only -q &>/dev/null; then pass "Up to date with the MOAM library"
+  else doing "Kept your copy as it is. Inside Claude, say: get skills"; fi
 else
   doing "Downloading from the MOAM skill library..."
   if ! gh api "repos/$REPO" --jq '.name' &>/dev/null; then
@@ -105,6 +108,20 @@ for d in my-skills/*/; do
   ln -sfn "../../my-skills/$name" ".claude/skills/$name"
 done
 pass "Skills wired"
+
+# --- Step 4c: Shortcuts that work from any folder ---
+# Claude only sees my-skills when it opens inside the Powerhouse folder.
+# These small shortcuts point back to it, so "/lets-wrap" works anywhere.
+if [[ -d "$WORKSPACE/global-skills" ]]; then
+  for d in "$WORKSPACE"/global-skills/*/; do
+    name=$(basename "$d"); dest="$HOME/.claude/skills/$name"
+    # never overwrite a skill the member made themselves
+    if [[ ! -e "$dest" ]] || grep -q "MOAM-POWERHOUSE-SHORTCUT" "$dest/SKILL.md" 2>/dev/null; then
+      mkdir -p "$dest"; cp "$d/SKILL.md" "$dest/SKILL.md"
+    fi
+  done
+  pass "Shortcuts added (lets wrap works from any folder)"
+fi
 
 # --- Step 5: Claude Code ---
 step 5 "Checking Claude Code (your AI agent)"

@@ -50,6 +50,9 @@ if ($LASTEXITCODE -eq 0) {
 Step 3 "Downloading your MOAM Powerhouse"
 if ((Test-Path $Workspace) -and (Test-Path "$Workspace\CLAUDE.md")) {
   Pass "Workspace already exists at Documents\$Folder"
+  Doing "Checking for updates..."
+  & git -C $Workspace pull --ff-only -q *> $null
+  if ($LASTEXITCODE -eq 0) { Pass "Up to date with the MOAM library" } else { Doing "Kept your copy as it is. Inside Claude, say: get skills" }
 } else {
   Doing "Downloading from the MOAM skill library..."
   & gh api "repos/$Repo" --jq '.name' *> $null
@@ -76,6 +79,22 @@ Get-ChildItem "my-skills" -Directory | ForEach-Object {
   if (-not (Test-Path $link)) { New-Item -ItemType Junction -Path $link -Target $_.FullName | Out-Null }
 }
 Pass "Skills wired"
+
+# --- Step 3c: Shortcuts that work from any folder ---
+# Claude only sees my-skills when it opens inside the Powerhouse folder.
+# These small shortcuts point back to it, so "/lets-wrap" works anywhere.
+if (Test-Path "$Workspace\global-skills") {
+  Get-ChildItem "$Workspace\global-skills" -Directory | ForEach-Object {
+    $dest = "$HOME\.claude\skills\$($_.Name)"
+    # never overwrite a skill the member made themselves
+    $ours = (Test-Path "$dest\SKILL.md") -and (Select-String -Path "$dest\SKILL.md" -Pattern "MOAM-POWERHOUSE-SHORTCUT" -Quiet)
+    if ((-not (Test-Path $dest)) -or $ours) {
+      New-Item -ItemType Directory -Force -Path $dest | Out-Null
+      Copy-Item "$($_.FullName)\SKILL.md" "$dest\SKILL.md" -Force
+    }
+  }
+  Pass "Shortcuts added (lets wrap works from any folder)"
+}
 
 # --- Step 4: Claude Code ---
 Step 4 "Installing Claude Code (your AI agent)"
