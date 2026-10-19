@@ -6,6 +6,13 @@
 
 set -e
 
+# The whole installer lives inside main() so bash reads all of it BEFORE it
+# runs a line. With `curl ... | bash`, bash reads the script from stdin; the
+# `exec < /dev/tty` below then swapped stdin to the keyboard and bash waited
+# for the rest of the script from the keyboard: a blank screen, nothing runs.
+# Found live on Shelby Michaels' Mac, Oct 19 2026.
+main() {
+
 # When this script is run as `curl ... | bash`, stdin is the pipe rather than
 # the keyboard. Homebrew then cannot prompt for a password and aborts with
 # "Running in non-interactive mode because `stdin` is not a TTY" followed by
@@ -83,7 +90,7 @@ step 4 "Downloading your MOAM Powerhouse"
 if [[ -d "$WORKSPACE" && -f "$WORKSPACE/CLAUDE.md" ]]; then
   pass "Workspace already exists at ~/Documents/$FOLDER"
   doing "Checking for updates..."
-  if git -C "$WORKSPACE" pull --ff-only -q &>/dev/null; then pass "Up to date with the MOAM library"
+  if GIT_TERMINAL_PROMPT=0 git -C "$WORKSPACE" pull --ff-only -q &>/dev/null </dev/null; then pass "Up to date with the MOAM library"
   else doing "Kept your copy as it is. Inside Claude, say: get skills"; fi
 else
   doing "Downloading from the MOAM skill library..."
@@ -177,3 +184,7 @@ echo -e "${BOLD}If Claude asks to register skills:${NC} say yes, register them a
 echo ""
 echo -e "  ${GREEN}You're all set. Build the consistent leader. Then scale the business.${NC}"
 echo ""
+}
+
+# Same line on purpose: bash has read "exit" before main swaps stdin.
+main "$@"; exit $?

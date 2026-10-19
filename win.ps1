@@ -51,7 +51,7 @@ Step 3 "Downloading your MOAM Powerhouse"
 if ((Test-Path $Workspace) -and (Test-Path "$Workspace\CLAUDE.md")) {
   Pass "Workspace already exists at Documents\$Folder"
   Doing "Checking for updates..."
-  & git -C $Workspace pull --ff-only -q *> $null
+  $env:GIT_TERMINAL_PROMPT = "0"; & git -C $Workspace pull --ff-only -q *> $null
   if ($LASTEXITCODE -eq 0) { Pass "Up to date with the MOAM library" } else { Doing "Kept your copy as it is. Inside Claude, say: get skills" }
 } else {
   Doing "Downloading from the MOAM skill library..."
